@@ -43,8 +43,33 @@ OPENAI_API_KEY='xxxxxxxxxx'
 ## Run it locally
 
 ```sh
-virtualenv .venv
-source .venv/bin/activate
+python3 -m venv .venv
+.\.venv\Scripts\Activate
 pip install -r requirements.txt
 streamlit run Chatbot.py
 ```
+
+> Build image
+
+```ps
+docker build -t chatbot .
+```
+
+> Test locally
+
+```ps
+docker run -p 8501:8501 chatbot
+```
+
+> Log in to GCP
+
+```ps
+gcloud init
+```
+
+> Ensure that the Cloud Run API and the Container Registry API are enabled:
+```ps
+gcloud services enable run.googleapis.com
+gcloud services enable containerregistry.googleapis.com
+```
+
