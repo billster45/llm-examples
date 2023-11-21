@@ -55,7 +55,7 @@ streamlit run Chatbot.py
 docker build -t chatbot .
 ```
 
-> Test locally
+> Test container locally before deploying to google cloud run
 
 ```ps
 docker run -p 8501:8501 chatbot
@@ -68,8 +68,31 @@ gcloud init
 ```
 
 > Ensure that the Cloud Run API and the Container Registry API are enabled:
+
 ```ps
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
 ```
 
+> Tag Your Image: Replace [PROJECT-ID] with your GCP project ID.
+
+```bash
+docker tag chatbot gcr.io/[PROJECT-ID]/chatbot
+```
+docker tag chatbot gcr.io/chatbot-405718/chatbot
+
+> Push the Image to GCR:
+
+```bash
+gcloud auth configure-docker
+docker push gcr.io/[PROJECT-ID]/chatbot
+```
+docker push gcr.io/chatbot-405718/chatbot
+
+Now deploy app to Cloud Run:
+
+```bash
+gcloud run deploy chatbot-service --image gcr.io/[PROJECT-ID]/chatbot --platform managed --region europe-west2 --allow-unauthenticated
+```
+
+gcloud run deploy chatbot-service --image gcr.io/chatbot-405718/chatbot --platform managed --region europe-west2 --allow-unauthenticated
