@@ -40,25 +40,13 @@ To set the OpenAI API key as an environment variable in Streamlit apps, do the f
 OPENAI_API_KEY='xxxxxxxxxx'
 ```
 
-## Run it locally
+## Deploy to GCP cloud run with API stored securely
 
-```sh
-python3 -m venv .venv
-.\.venv\Scripts\Activate
-pip install -r requirements.txt
-streamlit run Chatbot.py
-```
 
-> Build image
+> Build image from dockerfile
 
 ```ps
 docker build -t chatbot .
-```
-
-> Test container locally before deploying to google cloud run
-
-```ps
-docker run -p 8501:8501 chatbot
 ```
 
 > Log in to GCP
@@ -67,30 +55,47 @@ docker run -p 8501:8501 chatbot
 gcloud init
 ```
 
-> Ensure that the Cloud Run API and the Container Registry API are enabled:
+> Ensure that the Cloud Run API, Container Registry API and Secretmanager API are enabled:
 
 ```ps
 gcloud services enable run.googleapis.com
 gcloud services enable containerregistry.googleapis.com
+gcloud services enable secretmanager.googleapis.com
+```
+
+> create the secret slot in gcp
+
+```ps
+gcloud secrets create openai_api_key --replication-policy="automatic" --project=[PROJECT-ID]
+```
+
+> add the key itself
+
+```ps
+echo -n "[API-KEY]" | gcloud secrets versions add openai_api_key --data-file=- --project=[PROJECT-ID]
+```
+
+> Grant the necessary role to the service account to allow it to access secrets in Secret Manager. The role required is roles/secretmanager.secretAccessor.
+
+```ps
+gcloud projects add-iam-policy-binding [PROJECT-ID] --member="serviceAccount:[SERVICE-ACCOUNT]" --role="roles/secretmanager.secretAccessor"
 ```
 
 > Tag Your Image: Replace [PROJECT-ID] with your GCP project ID.
 
 ```bash
-docker tag chatbot gcr.io/[PROJECT-ID]/chatbot
+docker tag chatbot gcr.io/[PROJECT-ID]/chatbot-clean
 ```
 
 > Push the Image to GCR:
 
 ```bash
 gcloud auth configure-docker
-docker push gcr.io/[PROJECT-ID]/chatbot
+docker push gcr.io/[PROJECT-ID]/chatbot-clean
 ```
 
 Now deploy app to Cloud Run:
 
 ```bash
-gcloud run deploy chatbot-service --image gcr.io/[PROJECT-ID]/chatbot --platform managed --region europe-west2 --allow-unauthenticated
+gcloud run deploy chatbot-service-clean --image gcr.io/[PROJECT-ID]/chatbot-clean --platform managed --region europe-west2 --allow-unauthenticated
 ```
-
---allow-unauthenticated
