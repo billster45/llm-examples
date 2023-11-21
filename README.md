@@ -79,7 +79,6 @@ gcloud services enable containerregistry.googleapis.com
 ```bash
 docker tag chatbot gcr.io/[PROJECT-ID]/chatbot
 ```
-docker tag chatbot gcr.io/chatbot-405718/chatbot
 
 > Push the Image to GCR:
 
@@ -87,7 +86,6 @@ docker tag chatbot gcr.io/chatbot-405718/chatbot
 gcloud auth configure-docker
 docker push gcr.io/[PROJECT-ID]/chatbot
 ```
-docker push gcr.io/chatbot-405718/chatbot
 
 Now deploy app to Cloud Run:
 
@@ -95,4 +93,4 @@ Now deploy app to Cloud Run:
 gcloud run deploy chatbot-service --image gcr.io/[PROJECT-ID]/chatbot --platform managed --region europe-west2 --allow-unauthenticated
 ```
 
-gcloud run deploy chatbot-service --image gcr.io/chatbot-405718/chatbot --platform managed --region europe-west2 --allow-unauthenticated
+--allow-unauthenticated
